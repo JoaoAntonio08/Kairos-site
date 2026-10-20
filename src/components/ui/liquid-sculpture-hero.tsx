@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 export interface HeroLink { label: string; href: string }
 export interface SculptureHeroProps {
   src: string; imageAlt?: string; eyebrow?: string; headline: string; headlineAccent?: string; body?: string
-  primaryCta?: HeroLink; secondaryCta?: HeroLink; hint?: string; backdropText?: string; videoSrc?: string
+  primaryCta?: HeroLink; secondaryCta?: HeroLink; hint?: string; backdropText?: string; videoSrc?: string; artSrc?: string
   interactive?: boolean; strength?: number; radius?: number; particleDensity?: number; intro?: boolean
   height?: string; className?: string
 }
@@ -16,7 +16,7 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 
 export default function SculptureHero({
   src, imageAlt = "", eyebrow, headline, headlineAccent, body, primaryCta, secondaryCta,
-  hint = "Mova o cursor sobre a forma", backdropText, videoSrc, interactive = true, strength = 1,
+  hint = "Mova o cursor sobre a forma", backdropText, videoSrc, artSrc, interactive = true, strength = 1,
   radius = 1, particleDensity = 1, intro = true, height = "100svh", className,
 }: SculptureHeroProps) {
   const cv = React.useRef<HTMLCanvasElement>(null)
@@ -68,6 +68,7 @@ export default function SculptureHero({
     const mv = (e: PointerEvent) => {
       const r = c.getBoundingClientRect(), d = c.width / r.width
       m.x = (e.clientX - r.left) * d; m.y = (e.clientY - r.top) * d
+      c.parentElement!.style.setProperty("--mx", e.clientX - r.left + "px"); c.parentElement!.style.setProperty("--my", e.clientY - r.top + "px")
       m.on = interactive && e.clientY >= r.top && e.clientY <= r.bottom
     }
     img.onload = () => { build(); if (!rm) { raf = requestAnimationFrame(loop); addEventListener("pointermove", mv, { passive: true }) } }
@@ -81,6 +82,11 @@ export default function SculptureHero({
   return (
     <section id="inicio" aria-labelledby="hero-title" style={{ minHeight: height }} className={cn("relative flex items-end overflow-hidden bg-[#08080a] pt-32 pb-12 sm:pb-20", className)}>
       {videoSrc && <video src={videoSrc} autoPlay muted loop playsInline aria-hidden className="absolute inset-0 size-full object-cover" />}
+      {artSrc && <>
+        <div aria-hidden className="absolute inset-0 scale-105 bg-cover bg-center opacity-60 brightness-[.55] saturate-[.8]" style={{ backgroundImage: `url(${artSrc})` }} />
+        <div aria-hidden className="absolute inset-0 scale-105 bg-cover bg-center saturate-[1.5]" style={{ backgroundImage: `url(${artSrc})`, WebkitMaskImage: "radial-gradient(circle 280px at var(--mx,-999px) var(--my,-999px),#000 20%,transparent)", maskImage: "radial-gradient(circle 280px at var(--mx,-999px) var(--my,-999px),#000 20%,transparent)" }} />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#08080a]/85 via-[#08080a]/30 to-transparent" />
+      </>}
       <div aria-hidden className="absolute inset-0 bg-[radial-gradient(60%_55%_at_72%_45%,rgba(242,181,68,.13),transparent_70%)]" />
       {backdropText && <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[18%] select-none text-center font-head text-[22vw] font-extrabold uppercase leading-none tracking-tighter text-white/[0.035]">{backdropText}</div>}
       <canvas ref={cv} role="img" aria-label={imageAlt} className="absolute inset-0 size-full" />
