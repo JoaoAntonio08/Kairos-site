@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@theme {
+  --color-background:#0a0a0b; --color-foreground:#f1efea; --color-muted:#121214; --color-muted-foreground:#a3a29d;
+  --color-accent:#f2b544; --color-line:#27272b; --color-ring:#f2b544;
+  --font-head:'Archivo','Arial Narrow',Arial,sans-serif; --font-sans:'Inter','Helvetica Neue',Arial,sans-serif;
+}
+html{scroll-behavior:smooth;scroll-padding-top:72px;color-scheme:dark}
+body{margin:0;background:var(--color-background);color:var(--color-foreground);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+:focus-visible{outline:2px solid var(--color-accent);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
