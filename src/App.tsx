@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import SculptureHero from "@/components/ui/liquid-sculpture-hero"
-import { WorksWheel } from "@/components/ui/works-wheel"
-import Roadmap from "@/components/roadmap"
-import Backdrop from "@/components/backdrop"
+import Chapters from "@/components/chapters"
+import { start } from "@/lib/smooth"
+import art from "@/assets/edenfall-full.jpg"
 import Timeline from "@/components/ui/timeline"
 import { CONTACT, CONTACT_LABELS, contactHref, HERO_VIDEO, MEDIA, NAV, STAGES } from "@/data/site"
-import { PROJECTS, STATUS } from "@/data/projects"
 
 const pill = "inline-flex h-11 items-center rounded-full border-[1.5px] border-foreground px-5 font-head text-xs font-extrabold uppercase tracking-widest transition hover:bg-foreground hover:text-black"
 const eyebrow = "mb-4 flex items-center gap-3 text-xs uppercase tracking-[.18em] text-accent before:h-px before:w-7 before:bg-current"
@@ -23,10 +22,10 @@ function Header() {
   return (
     <header className={"fixed inset-x-0 top-0 z-50 transition-colors " + (solid || open ? "border-b border-line bg-background/90 backdrop-blur-md" : "")}>
       <div className={wrap + " flex h-[72px] items-center justify-between gap-5"}>
-        <a href="#inicio" aria-label="Kairós Interactive, início" className="flex items-center gap-3 font-head text-[15px] font-extrabold tracking-[.22em]"><img src={MEDIA.logo} alt="" className="h-8 w-auto" />KAIRÓS</a>
+        <a href="#inicio" aria-label="Kairós Interactive, início" className="flex items-center gap-3 font-head text-[15px] font-extrabold tracking-[.22em]"><img src={MEDIA.logo} alt="" className="h-8 w-auto animate-[flip_1.6s_.5s_cubic-bezier(.6,0,.2,1)_both]" />KAIRÓS</a>
         <nav id="menu" aria-label="Principal" className={"max-md:absolute max-md:inset-x-0 max-md:top-full max-md:border-b max-md:border-line max-md:bg-background/95 " + (open ? "" : "max-md:hidden")}>
           <ul className="flex gap-9 max-md:flex-col max-md:gap-0 max-md:px-5 max-md:pb-4">
-            {NAV.slice(0, 4).map(([id, t]) => (<li key={id}><a href={"#" + id} onClick={() => setOpen(false)} className="block border-b-2 border-transparent py-2 font-head text-xs font-extrabold uppercase tracking-[.12em] text-[#d8d6d0] transition hover:border-accent hover:text-white max-md:border-line max-md:py-4 max-md:text-base">{t}</a></li>))}
+            {NAV.slice(0, 3).map(([id, t]) => (<li key={id}><a href={"#" + id} onClick={() => setOpen(false)} className="block border-b-2 border-transparent py-2 font-head text-xs font-extrabold uppercase tracking-[.12em] text-[#d8d6d0] transition hover:border-accent hover:text-white max-md:border-line max-md:py-4 max-md:text-base">{t}</a></li>))}
           </ul>
         </nav>
         <a href="#contato" className={pill + " max-md:hidden"}>Contato</a>
@@ -37,35 +36,24 @@ function Header() {
 }
 
 export default function App() {
-  const [focus, setFocus] = useState(-1), [progress, setProgress] = useState(0)
-  const projRef = useRef<HTMLElement>(null)
-  const range = () => Math.max(1, projRef.current!.offsetHeight - innerHeight)
   useEffect(() => {
-    const f = () => { const el = projRef.current; if (!el) return; setProgress(Math.min(1, Math.max(0, -el.getBoundingClientRect().top / range()))) }
-    f(); addEventListener("scroll", f, { passive: true }); addEventListener("resize", f)
-    return () => { removeEventListener("scroll", f); removeEventListener("resize", f) }
+    const stop = start(), fine = matchMedia("(pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches
+    const mv = (e: PointerEvent) => { document.documentElement.style.setProperty("--gx", e.clientX + "px"); document.documentElement.style.setProperty("--gy", e.clientY + "px") }
+    if (fine) addEventListener("pointermove", mv, { passive: true })
+    return () => { stop(); removeEventListener("pointermove", mv) }
   }, [])
-  const request = (v: number) => scrollTo({ top: projRef.current!.getBoundingClientRect().top + scrollY + (v / (PROJECTS.length + 1)) * range(), behavior: "smooth" })
   return (
     <>
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-[58] bg-[radial-gradient(520px_circle_at_var(--gx,-999px)_var(--gy,-999px),rgba(242,181,68,.08),transparent_60%)]" />
       <a href="#main" className="absolute -left-[999px] z-[99] bg-accent px-4 py-2 text-black focus:left-2 focus:top-2">Ir para o conteúdo</a>
       <Header />
       <main id="main">
-        <SculptureHero src={MEDIA.logo} imageAlt="Logo da Kairós Interactive formada por partículas" videoSrc={HERO_VIDEO || undefined} backdropText="kairós"
+        <SculptureHero src={MEDIA.logo} imageAlt="Logo da Kairós Interactive formada por partículas" artSrc={art} videoSrc={HERO_VIDEO || undefined} backdropText="kairós"
           eyebrow="Iniciativa independente · Jogos e soluções digitais" headline="Cada ideia tem o seu momento." headlineAccent="momento."
           body="A Kairós Interactive cria jogos autorais e soluções de software. Estamos no começo, e este site registra o caminho: o que já pensamos, o que estamos construindo e o que ainda é só ideia."
           primaryCta={{ label: "Ver projetos", href: "#projetos" }} secondaryCta={{ label: "Conhecer a iniciativa", href: "#sobre" }} />
 
-        <section id="projetos" ref={projRef} aria-label="Projetos" className="relative border-t border-line" style={{ height: `calc(100svh + ${(PROJECTS.length + 1) * 45}vh)` }}>
-          <div className="sticky top-0 h-svh min-h-[560px] overflow-hidden">
-            <Backdrop items={PROJECTS} active={focus} />
-            <div aria-hidden className="absolute inset-0 bg-black/45" />
-            <div className={"pointer-events-none absolute left-5 top-24 z-10 transition-opacity duration-500 sm:left-10 lg:left-[72px] " + (focus >= 0 ? "opacity-0" : "")}><p className={eyebrow}>Projetos</p><h2 className={h2 + " !text-[clamp(30px,4vw,56px)]"}>Projetos em<br />estágios honestos</h2></div>
-            <WorksWheel className="bg-transparent" progress={progress} onRequest={request} onFocusItem={setFocus} label="Projetos" items={PROJECTS.map((p) => ({ title: p.short, image: p.wide, meta: `${STATUS[p.status]} · ${p.category}` }))} />
-          </div>
-        </section>
-
-        <Roadmap />
+        <Chapters />
 
         <section id="sobre" aria-labelledby="sobre-t" className="bg-[#f3f1ea] py-32 text-center text-[#0a0a0b]">
           <div className={wrap}><p className={eyebrow + " justify-center !text-[#8a5f00]"}>Sobre a Kairós</p>
@@ -90,7 +78,7 @@ export default function App() {
       <footer className="border-t border-line py-12 text-sm text-muted-foreground">
         <div className={wrap + " grid gap-8 md:grid-cols-[1.4fr_1fr_1fr]"}>
           <div><a href="#inicio" className="flex items-center gap-3 font-head font-extrabold tracking-[.22em] text-foreground"><img src={MEDIA.logo} alt="" className="h-7" />KAIRÓS</a><p className="mt-3 max-w-[34ch]">Iniciativa independente de jogos e soluções digitais. Em fase inicial de desenvolvimento.</p></div>
-          <ul className="grid gap-2">{NAV.slice(1, 5).map(([id, t]) => <li key={id}><a href={"#" + id} className="hover:text-foreground">{t}</a></li>)}</ul>
+          <ul className="grid gap-2">{NAV.slice(1, 3).map(([id, t]) => <li key={id}><a href={"#" + id} className="hover:text-foreground">{t}</a></li>)}</ul>
           <ul className="grid gap-2"><li><a href="#contato" className="hover:text-foreground">Contato</a></li>{contacts.map(([k, v]) => <li key={k}><a href={contactHref(k, v)} rel="noopener" className="hover:text-foreground">{CONTACT_LABELS[k]}</a></li>)}</ul>
           <p className="border-t border-line pt-5 text-xs md:col-span-3">© {new Date().getFullYear()} Kairós Interactive. Todos os direitos reservados. Os visuais dos projetos são ilustrações conceituais, não capturas de produtos.</p>
         </div>
