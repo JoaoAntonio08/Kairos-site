@@ -25,8 +25,9 @@ export default function Chapters() {
         <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/10" />
         <div aria-hidden className="absolute inset-0 opacity-40 mix-blend-soft-light transition-colors duration-700" style={{ background: c }} />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/50" />
+        <span aria-hidden className="pointer-events-none absolute right-[9%] top-1/2 -translate-y-1/2 font-head text-[26vw] font-extrabold leading-none text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,.2)] max-md:hidden">{pad(i + 1)}</span>
         <h2 className="sr-only">Projetos</h2>
-        <p className="absolute left-5 top-24 z-10 flex items-center gap-3 text-xs uppercase tracking-[.18em] text-white/70 before:h-px before:w-7 before:bg-current sm:left-10 lg:left-[72px]">Projetos · estágios honestos</p>
+        <p className="absolute left-5 top-24 z-10 flex items-center gap-3 text-xs uppercase tracking-[.18em] text-white/70 before:h-px before:w-7 before:bg-current sm:left-10 lg:left-[72px]">01 / Projetos · estágios honestos</p>
         <div className="relative mx-auto flex h-full w-full max-w-[1440px] flex-col justify-end px-5 pb-20 pt-28 sm:px-10 lg:px-[72px]">
           <p className="mb-3 flex items-center gap-3 text-xs uppercase tracking-[.18em] transition-colors duration-700 before:h-px before:w-7 before:bg-current" style={{ color: c }}>Capítulo {pad(i + 1)} / {pad(n)} · {STATUS[p.status]}</p>
           <div key={p.id}>
