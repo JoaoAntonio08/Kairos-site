@@ -13,7 +13,7 @@ export const MEDIA = {
   lixeiraVideo: "/media/lixeira-video.mp4", econVideo: "/media/econ-video.webm",
   originVideo: "/media/origin-video.mp4", edenfallVideo: "/media/edenfall-video.mp4", aftertimeVideo: "/media/aftertime-video.mp4", hollowVideo: "/media/hollow-video.mp4", requiemVideo: "/media/requiem-video.mp4",
 }
-export const NAV = [["inicio", "Início"], ["projetos", "Projetos"], ["roadmap", "Roadmap"], ["sobre", "Sobre"], ["contato", "Contato"]] as const
+export const NAV = [["inicio", "Início"], ["projetos", "Projetos"], ["sobre", "Sobre"], ["contato", "Contato"]] as const
 export const STAGES = [
   { id: "dev", label: "01", title: "Desenvolver", text: "Tirar a ideia do papel e transformá-la em algo que existe." },
   { id: "exp", label: "02", title: "Experimentar", text: "Testar cedo, em protótipos pequenos, aceitando que nem tudo funciona." },
