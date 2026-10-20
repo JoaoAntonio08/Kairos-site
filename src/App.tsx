@@ -12,6 +12,16 @@ const h2 = "font-head text-[clamp(36px,6vw,84px)] font-extrabold uppercase leadi
 const wrap = "mx-auto w-full max-w-[1440px] px-5 sm:px-10 lg:px-[72px]"
 const contacts = Object.entries(CONTACT).filter(([, v]) => v) as [keyof typeof CONTACT, string][]
 
+const WORDS = ["ORIGIN", "EDENFALL", "AFTERTIME", "THE HOLLOW", "REQUIEM"]
+function Marquee() {
+  const row = WORDS.map((w) => <span key={w} className="flex items-center gap-10">{w}<i className="not-italic text-accent [-webkit-text-stroke:0]">✦</i></span>)
+  return (
+    <div aria-hidden className="overflow-hidden border-y border-line bg-background py-6">
+      <div className="marquee flex w-max gap-10 font-head text-[clamp(40px,7vw,104px)] font-extrabold uppercase leading-none text-transparent [-webkit-text-stroke:1.5px_rgba(241,239,234,.5)]">{row}{row}{row}{row}</div>
+    </div>
+  )
+}
+
 function Header() {
   const [open, setOpen] = useState(false), [solid, setSolid] = useState(false)
   useEffect(() => {
@@ -36,15 +46,9 @@ function Header() {
 }
 
 export default function App() {
-  useEffect(() => {
-    const stop = start(), fine = matchMedia("(pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches
-    const mv = (e: PointerEvent) => { document.documentElement.style.setProperty("--gx", e.clientX + "px"); document.documentElement.style.setProperty("--gy", e.clientY + "px") }
-    if (fine) addEventListener("pointermove", mv, { passive: true })
-    return () => { stop(); removeEventListener("pointermove", mv) }
-  }, [])
+  useEffect(() => start(), [])
   return (
     <>
-      <div aria-hidden className="pointer-events-none fixed inset-0 z-[58] bg-[radial-gradient(520px_circle_at_var(--gx,-999px)_var(--gy,-999px),rgba(242,181,68,.08),transparent_60%)]" />
       <a href="#main" className="absolute -left-[999px] z-[99] bg-accent px-4 py-2 text-black focus:left-2 focus:top-2">Ir para o conteúdo</a>
       <Header />
       <main id="main">
@@ -53,10 +57,11 @@ export default function App() {
           body="A Kairós Interactive cria jogos autorais e soluções de software. Estamos no começo, e este site registra o caminho: o que já pensamos, o que estamos construindo e o que ainda é só ideia."
           primaryCta={{ label: "Ver projetos", href: "#projetos" }} secondaryCta={{ label: "Conhecer a iniciativa", href: "#sobre" }} />
 
+        <Marquee />
         <Chapters />
 
         <section id="sobre" aria-labelledby="sobre-t" className="bg-[#f3f1ea] py-32 text-center text-[#0a0a0b]">
-          <div className={wrap}><p className={eyebrow + " justify-center !text-[#8a5f00]"}>Sobre a Kairós</p>
+          <div className={wrap}><p className={eyebrow + " justify-center !text-[#8a5f00]"}>02 / Sobre a Kairós</p>
             <h2 id="sobre-t" className={h2 + " mx-auto mb-8 max-w-[14ch]"}>Começar pequeno, de verdade.</h2>
             <div className="mx-auto grid max-w-[60ch] gap-5 text-[#3b3a37]">
               <p><strong className="font-medium text-black">A Kairós Interactive é uma iniciativa independente</strong> dedicada a criar produtos digitais próprios, em duas frentes: jogos autorais e experimentais, e aplicações web que tentam resolver problemas reais.</p>
@@ -65,15 +70,18 @@ export default function App() {
             <a href="#projetos" className="mt-8 inline-flex h-11 items-center rounded-full border-[1.5px] border-black px-5 font-head text-xs font-extrabold uppercase tracking-widest transition hover:bg-black hover:text-white">Ver projetos</a></div>
         </section>
 
-        <Timeline eyebrow="Filosofia" title="Como trabalhamos" items={STAGES} />
+        <Timeline eyebrow="03 / Filosofia" title="Como trabalhamos" items={STAGES} />
 
         <section id="contato" aria-labelledby="contato-t" className="border-t border-line py-28">
-          <div className={wrap}><p className={eyebrow}>Contato</p><h2 id="contato-t" className={h2}>Fale com a Kairós</h2>
+          <div className={wrap}><p className={eyebrow}>04 / Contato</p><h2 id="contato-t" className={h2}>Fale com a Kairós</h2>
             <div className="mt-10 grid max-w-[720px] gap-4 border border-line p-8">{contacts.length ? contacts.map(([k, v]) => (
               <a key={k} href={contactHref(k, v)} rel="noopener" target={k === "email" ? undefined : "_blank"} className="w-max border-b-2 border-accent font-head text-[clamp(20px,2.6vw,32px)] font-extrabold uppercase">{CONTACT_LABELS[k]}</a>))
               : <p className="text-muted-foreground">Os canais oficiais de contato ainda estão sendo definidos.</p>}
               {CONTACT.email && <p className="text-sm text-muted-foreground">{CONTACT.email}</p>}</div></div>
         </section>
+        <div aria-hidden className="h-[19vw] select-none overflow-hidden">
+          <p className="mt-[3.2vw] bg-cover bg-center bg-clip-text font-head text-[27vw] font-extrabold uppercase leading-[.85] tracking-tighter text-transparent [-webkit-text-fill-color:transparent]" style={{ backgroundImage: `url(${art})`, WebkitBackgroundClip: "text" }}>Kairós</p>
+        </div>
       </main>
       <footer className="border-t border-line py-12 text-sm text-muted-foreground">
         <div className={wrap + " grid gap-8 md:grid-cols-[1.4fr_1fr_1fr]"}>
