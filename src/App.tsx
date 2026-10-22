@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react"
 import SculptureHero from "@/components/ui/liquid-sculpture-hero"
 import Chapters from "@/components/chapters"
-import { start } from "@/lib/smooth"
+import ExtraPage from "@/components/extra-page"
+import EntryPage from "@/components/entry-page"
+import { start, to, jump, remeasure } from "@/lib/smooth"
+import { parseRoute, useRoute } from "@/lib/router"
+import { eyebrow, h2, pill, wrap } from "@/lib/ui"
+import { EXTRAS, findExtra } from "@/data/extras"
 import art from "@/assets/edenfall-full.jpg"
 import Timeline from "@/components/ui/timeline"
 import { CONTACT, CONTACT_LABELS, contactHref, HERO_VIDEO, MEDIA, NAV, STAGES } from "@/data/site"
 
-const pill = "inline-flex h-11 items-center rounded-full border-[1.5px] border-foreground px-5 font-head text-xs font-extrabold uppercase tracking-widest transition hover:bg-foreground hover:text-black"
-const eyebrow = "mb-4 flex items-center gap-3 text-xs uppercase tracking-[.18em] text-accent before:h-px before:w-7 before:bg-current"
-const h2 = "font-head text-[clamp(36px,6vw,84px)] font-extrabold uppercase leading-[.95] tracking-tight"
-const wrap = "mx-auto w-full max-w-[1440px] px-5 sm:px-10 lg:px-[72px]"
 const contacts = Object.entries(CONTACT).filter(([, v]) => v) as [keyof typeof CONTACT, string][]
 
 const WORDS = ["ORIGIN", "EDENFALL", "AFTERTIME", "THE HOLLOW", "REQUIEM"]
@@ -22,7 +23,10 @@ function Marquee() {
   )
 }
 
-function Header() {
+const tab = "block border-b-2 border-transparent py-2 font-head text-xs font-extrabold uppercase tracking-[.12em] text-[#d8d6d0] transition hover:border-accent hover:text-white max-lg:border-line max-lg:py-4 max-lg:text-base"
+
+function Header({ route }: { route: string }) {
+  const slug = parseRoute(route).slug
   const [open, setOpen] = useState(false), [solid, setSolid] = useState(false)
   useEffect(() => {
     const f = () => setSolid(scrollY > 24), k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false)
@@ -30,28 +34,26 @@ function Header() {
     return () => { removeEventListener("scroll", f); removeEventListener("keydown", k) }
   }, [])
   return (
-    <header className={"fixed inset-x-0 top-0 z-50 transition-colors " + (solid || open ? "border-b border-line bg-background/90 backdrop-blur-md" : "")}>
+    <header style={{ viewTransitionName: "site-header" }} className={"fixed inset-x-0 top-0 z-50 transition-colors " + (solid || open ? "border-b border-line bg-background/90 backdrop-blur-md" : "")}>
       <div className={wrap + " flex h-[72px] items-center justify-between gap-5"}>
         <a href="#inicio" aria-label="Kairós Interactive, início" className="flex items-center gap-3 font-head text-[15px] font-extrabold tracking-[.22em]"><img src={MEDIA.logo} alt="" className="h-8 w-auto animate-[flip_1.6s_.5s_cubic-bezier(.6,0,.2,1)_both]" />KAIRÓS</a>
-        <nav id="menu" aria-label="Principal" className={"max-md:absolute max-md:inset-x-0 max-md:top-full max-md:border-b max-md:border-line max-md:bg-background/95 " + (open ? "" : "max-md:hidden")}>
-          <ul className="flex gap-9 max-md:flex-col max-md:gap-0 max-md:px-5 max-md:pb-4">
-            {NAV.slice(0, 3).map(([id, t]) => (<li key={id}><a href={"#" + id} onClick={() => setOpen(false)} className="block border-b-2 border-transparent py-2 font-head text-xs font-extrabold uppercase tracking-[.12em] text-[#d8d6d0] transition hover:border-accent hover:text-white max-md:border-line max-md:py-4 max-md:text-base">{t}</a></li>))}
+        <nav id="menu" aria-label="Principal" className={"max-lg:absolute max-lg:inset-x-0 max-lg:top-full max-lg:border-b max-lg:border-line max-lg:bg-background/95 " + (open ? "" : "max-lg:hidden")}>
+          <ul className="flex items-center gap-7 max-lg:flex-col max-lg:items-stretch max-lg:gap-0 max-lg:px-5 max-lg:pb-4 xl:gap-9">
+            {NAV.slice(0, 3).map(([id, t]) => (<li key={id}><a href={"#" + id} onClick={() => setOpen(false)} className={tab}>{t}</a></li>))}
+            {!!EXTRAS.length && <li aria-hidden className="mx-1 h-6 w-px bg-line max-lg:mx-0 max-lg:mt-4 max-lg:h-px max-lg:w-full" />}
+            {EXTRAS.map((c) => (<li key={c.slug}><a href={"#/" + c.slug} aria-current={slug === c.slug ? "page" : undefined} onClick={() => setOpen(false)} className={tab + (slug === c.slug ? " !border-accent !text-white" : " !text-muted-foreground")}>{c.label}</a></li>))}
           </ul>
         </nav>
-        <a href="#contato" className={pill + " max-md:hidden"}>Contato</a>
-        <button aria-expanded={open} aria-controls="menu" aria-label={open ? "Fechar menu" : "Abrir menu"} onClick={() => setOpen(!open)} className="grid size-11 place-content-center gap-[5px] rounded-full border-[1.5px] border-foreground md:hidden"><i className="block h-px w-4 bg-current" /><i className="block h-px w-4 bg-current" /></button>
+        <a href="#contato" className={pill + " max-lg:hidden"}>Contato</a>
+        <button aria-expanded={open} aria-controls="menu" aria-label={open ? "Fechar menu" : "Abrir menu"} onClick={() => setOpen(!open)} className="grid size-11 place-content-center gap-[5px] rounded-full border-[1.5px] border-foreground lg:hidden"><i className="block h-px w-4 bg-current" /><i className="block h-px w-4 bg-current" /></button>
       </div>
     </header>
   )
 }
 
-export default function App() {
-  useEffect(() => start(), [])
+function Home() {
   return (
     <>
-      <a href="#main" className="absolute -left-[999px] z-[99] bg-accent px-4 py-2 text-black focus:left-2 focus:top-2">Ir para o conteúdo</a>
-      <Header />
-      <main id="main">
         <SculptureHero src={MEDIA.logo} imageAlt="Logo da Kairós Interactive formada por partículas" artSrc={art} videoSrc={HERO_VIDEO || undefined} backdropText="kairós"
           eyebrow="Iniciativa independente · Jogos e soluções digitais" headline="Cada ideia tem o seu momento." headlineAccent="momento."
           body="A Kairós Interactive cria jogos autorais e soluções de software. Estamos no começo, e este site registra o caminho: o que já pensamos, o que estamos construindo e o que ainda é só ideia."
@@ -82,13 +84,37 @@ export default function App() {
         <div aria-hidden className="h-[19vw] select-none overflow-hidden">
           <p className="mt-[3.2vw] bg-cover bg-center bg-clip-text font-head text-[27vw] font-extrabold uppercase leading-[.85] tracking-tighter text-transparent [-webkit-text-fill-color:transparent]" style={{ backgroundImage: `url(${art})`, WebkitBackgroundClip: "text" }}>Kairós</p>
         </div>
+    </>
+  )
+}
+
+export default function App() {
+  useEffect(() => start(), [])
+  const route = useRoute(), { slug, id } = parseRoute(route), cat = findExtra(slug), item = cat?.items.find((i) => i.id === id)
+  useEffect(() => {
+    document.title = cat ? `${item ? item.name : cat.label} — Kairós Interactive` : "Kairós Interactive — Jogos e soluções digitais"
+    // Troca de página: topo. Voltando à home por uma âncora (#projetos, #contato...): rola até a seção depois de montar.
+    const id = decodeURIComponent(location.hash.slice(1)), t = setTimeout(() => {
+      const el = !cat && id && !id.startsWith("/") ? document.getElementById(id) : null
+      remeasure()
+      if (el) to(el.getBoundingClientRect().top + scrollY); else jump(0)
+    }, 60)
+    return () => clearTimeout(t)
+  }, [route])
+  return (
+    <>
+      <a href="#main" className="absolute -left-[999px] z-[99] bg-accent px-4 py-2 text-black focus:left-2 focus:top-2">Ir para o conteúdo</a>
+      <Header route={route} />
+      <main id="main">
+        {cat && item ? <EntryPage key={cat.slug + "/" + item.id} cat={cat} item={item} /> : cat ? <ExtraPage key={cat.slug} cat={cat} /> : <Home />}
       </main>
       <footer className="border-t border-line py-12 text-sm text-muted-foreground">
-        <div className={wrap + " grid gap-8 md:grid-cols-[1.4fr_1fr_1fr]"}>
+        <div className={wrap + " grid gap-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]"}>
           <div><a href="#inicio" className="flex items-center gap-3 font-head font-extrabold tracking-[.22em] text-foreground"><img src={MEDIA.logo} alt="" className="h-7" />KAIRÓS</a><p className="mt-3 max-w-[34ch]">Iniciativa independente de jogos e soluções digitais. Em fase inicial de desenvolvimento.</p></div>
-          <ul className="grid gap-2">{NAV.slice(1, 3).map(([id, t]) => <li key={id}><a href={"#" + id} className="hover:text-foreground">{t}</a></li>)}</ul>
-          <ul className="grid gap-2"><li><a href="#contato" className="hover:text-foreground">Contato</a></li>{contacts.map(([k, v]) => <li key={k}><a href={contactHref(k, v)} rel="noopener" className="hover:text-foreground">{CONTACT_LABELS[k]}</a></li>)}</ul>
-          <p className="border-t border-line pt-5 text-xs md:col-span-3">© {new Date().getFullYear()} Kairós Interactive. Todos os direitos reservados. Os visuais dos projetos são ilustrações conceituais, não capturas de produtos.</p>
+          <ul className="grid content-start gap-2">{NAV.slice(1, 3).map(([id, t]) => <li key={id}><a href={"#" + id} className="hover:text-foreground">{t}</a></li>)}</ul>
+          {!!EXTRAS.length && <ul className="grid content-start gap-2">{EXTRAS.map((c) => <li key={c.slug}><a href={"#/" + c.slug} className="hover:text-foreground">{c.label}</a></li>)}</ul>}
+          <ul className="grid content-start gap-2"><li><a href="#contato" className="hover:text-foreground">Contato</a></li>{contacts.map(([k, v]) => <li key={k}><a href={contactHref(k, v)} rel="noopener" className="hover:text-foreground">{CONTACT_LABELS[k]}</a></li>)}</ul>
+          <p className="border-t border-line pt-5 text-xs md:col-span-4">© {new Date().getFullYear()} Kairós Interactive. Todos os direitos reservados. Os visuais dos projetos são ilustrações conceituais, não capturas de produtos.</p>
         </div>
       </footer>
     </>
