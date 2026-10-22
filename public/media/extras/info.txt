@@ -1,1 +1,0 @@
-O arquivo .gitkeep mantém a pasta das imagens dos Extras no repositório.
