@@ -54,3 +54,6 @@ export const ROADMAP: Project[] = [
 ]
 // A roda mostra os projetos (sem o próprio site).
 export const PROJECTS = ROADMAP.filter((p) => p.kind !== "site")
+
+// Cor de destaque por projeto: usada nos capítulos da home e nas páginas dos Extras.
+export const ACCENT: Record<string, string> = { origin: "#f2b544", edenfall: "#f4813a", aftertime: "#60a5fa", hollow: "#a8b0a0", requiem: "#fb7185", econ: "#4ade80", lixeira: "#2dd4bf" }
