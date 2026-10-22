@@ -8,3 +8,7 @@ export const start = () => {
   return () => { cancelAnimationFrame(id); l.destroy(); lenis = null }
 }
 export const to = (y: number) => (lenis ? lenis.scrollTo(y) : scrollTo({ top: y, behavior: "smooth" }))
+// Chamar depois de trocar o conteúdo da página: o Lenis guarda o tamanho antigo e limitaria a rolagem.
+export const remeasure = () => lenis?.resize()
+// Vai ao topo sem animação (troca de página).
+export const jump = (y = 0) => (lenis ? lenis.scrollTo(y, { immediate: true }) : scrollTo(0, y))
