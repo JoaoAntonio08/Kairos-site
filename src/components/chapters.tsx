@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import Backdrop from "@/components/backdrop"
-import { PROJECTS, STATUS } from "@/data/projects"
+import { ACCENT as ACC, PROJECTS, STATUS } from "@/data/projects"
 import { to } from "@/lib/smooth"
 
-// Cor de destaque por projeto: muda a atmosfera do capítulo inteiro.
-const ACC: Record<string, string> = { origin: "#f2b544", edenfall: "#a78bfa", aftertime: "#60a5fa", hollow: "#a8b0a0", requiem: "#fb7185", econ: "#4ade80", lixeira: "#2dd4bf" }
 const LIST = [...PROJECTS.filter((p) => p.kind === "game"), ...PROJECTS.filter((p) => p.kind !== "game")]
 const n = LIST.length, pad = (v: number) => String(v).padStart(2, "0")
 
