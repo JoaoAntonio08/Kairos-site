@@ -6,7 +6,7 @@ import { CONTACT, MEDIA } from "@/data/site"
 import { eyebrow, h2, pill, wrap } from "@/lib/ui"
 
 // Classes completas (o Tailwind só gera o que enxerga escrito): colunas conforme a quantidade de itens.
-const cols = (n: number) => (n <= 2 ? "sm:grid-cols-2" : n === 4 ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3")
+const cols = (n: number) => (n <= 2 ? "sm:grid-cols-2" : n === 4 || n === 8 ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3")
 const pad = (v: number) => String(v).padStart(2, "0")
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
 const num = (cat: ExtraCategory, n: number) => (cat.numerals === "roman" ? ROMAN[n - 1] ?? String(n) : pad(n))
@@ -35,7 +35,7 @@ function Cell({ it, n, cat }: { it: ExtraItem; n: number; cat: ExtraCategory }) 
           <span className="bg-accent px-2 py-1 font-head text-[11px] font-extrabold tracking-widest text-black">{num(cat, n)}</span>
           {it.tags?.[0] && <span className="truncate text-[11px] uppercase tracking-[.16em] text-muted-foreground">{it.tags[0]}</span>}
         </div>
-        <div className="relative aspect-[16/10] overflow-hidden border-y border-line bg-[#0e0e10]">
+        <div className={"relative overflow-hidden border-y border-line bg-[#0e0e10] " + (cat.portrait ? "aspect-[3/4]" : "aspect-[16/10]")}>
           {it.image
             ? <img src={it.image} alt="" loading="lazy" className="size-full object-cover opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100" />
             : <div aria-hidden className="grid size-full place-content-center bg-[radial-gradient(70%_70%_at_50%_40%,color-mix(in_oklab,var(--color-accent)_22%,transparent),transparent)]"><img src={MEDIA.logo} alt="" className="h-14 w-auto opacity-30" /></div>}
