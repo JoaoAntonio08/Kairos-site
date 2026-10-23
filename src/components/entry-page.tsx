@@ -66,6 +66,23 @@ function Rail({ list, kicker }: { list: Sec[]; kicker: string }) {
   )
 }
 
+
+// ---------------------------------------------------------------------------------------------
+// Pausa de história: uma frase só, em serifa, que acende palavra por palavra conforme a página rola.
+// Sem o efeito (movimento reduzido) o texto já aparece inteiro. Os índices alternam o recuo para dar ritmo.
+// ---------------------------------------------------------------------------------------------
+function Beat({ text, k }: { text: string; k: number }) {
+  return (
+    <section aria-label="História" className="relative py-20 sm:py-28">
+      <div className={wrap + gutter}>
+        <p data-beat className={"max-w-[22ch] font-serif text-[clamp(28px,3.6vw,56px)] italic leading-[1.12] text-foreground " + (k % 2 ? "lg:ml-[16%]" : "")}>
+          {text.split(" ").map((w, i) => <span data-w key={i}>{w} </span>)}
+        </p>
+      </div>
+    </section>
+  )
+}
+
 // ---------------------------------------------------------------------------------------------
 export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: ExtraItem }) {
   const root = useRef<HTMLDivElement>(null)
@@ -91,6 +108,8 @@ export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: Ext
         .to("[data-layer='2']", { yPercent: 22, opacity: 0.15, ease: "none" }, 0)
       gsap.utils.toArray<HTMLElement>("[data-rv]").forEach((el) =>
         gsap.from(el, { y: 48, opacity: 0, duration: 0.9, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 90%" } }))
+      gsap.utils.toArray<HTMLElement>("[data-beat]").forEach((el) =>
+        gsap.fromTo(el.querySelectorAll("[data-w]"), { opacity: 0.14 }, { opacity: 1, ease: "none", stagger: 0.12, scrollTrigger: { trigger: el, start: "top 88%", end: "bottom 52%", scrub: true } }))
       gsap.utils.toArray<HTMLElement>("[data-panel]").forEach((el) => {
         gsap.fromTo(el, { clipPath: "inset(12% 8% 12% 8%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "none", scrollTrigger: { trigger: el, start: "top 96%", end: "top 45%", scrub: true } })
         gsap.fromTo(el.querySelector("[data-pimg]"), { yPercent: -7, scale: 1.04 }, { yPercent: 7, scale: 1.04, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true } })
@@ -110,20 +129,21 @@ export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: Ext
         <div data-layer="1" aria-hidden className="absolute inset-x-0 -top-[8%] h-[116%]">
           {item.video
             ? <video src={item.video} poster={item.image} muted loop playsInline autoPlay preload="metadata" className="size-full object-cover" />
-            : item.image && <img src={item.image} alt="" className="size-full object-cover" />}
-          <div className="absolute inset-0 bg-black/45" />
+            : item.image && <img src={item.image} alt="" className={"size-full object-cover" + (cat.portrait ? " lg:scale-110 lg:blur-2xl" : "")} />}
+          <div className={"absolute inset-0 " + (cat.portrait ? "bg-black/55" : "bg-black/45")} />
         </div>
         <div data-layer="2" aria-hidden className="absolute inset-0 opacity-35 mix-blend-soft-light" style={{ background: "var(--color-accent)" }} />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-transparent" />
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background via-background/70 to-transparent" />
         <div className={wrap + " relative flex h-full flex-col justify-end pb-20 pt-28"}>
+          {cat.portrait && item.image && <img src={item.image} alt={item.name} className="absolute right-5 top-28 hidden h-[min(64svh,700px)] w-auto border border-white/15 shadow-[0_30px_80px_rgba(0,0,0,.6)] sm:right-10 lg:right-[72px] lg:block xl:right-[432px]" />}
           <nav aria-label="Trilha" className="mb-6 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[.18em] text-white/70">
             <a href={`#/${cat.slug}`} className="transition-colors hover:text-white">← {cat.label}</a><span aria-hidden>/</span><span className="text-accent">{short}</span>
           </nav>
           <span className="mb-5 inline-flex w-max items-center gap-2 rounded-full border border-white/20 bg-black/50 px-3.5 py-2 text-[11px] uppercase tracking-[.14em] text-white/90 backdrop-blur-md">
             <i aria-hidden className="size-1.5 rounded-full" style={{ background: DOT[item.status] }} />{STATUS[item.status]}
           </span>
-          <h1 id="entry-t" className="max-w-[16ch] font-head text-[clamp(44px,8vw,128px)] font-extrabold uppercase leading-[.88] tracking-tighter animate-[fadeup_.8s_ease_both]">{short}</h1>
+          <h1 id="entry-t" className={"font-head font-extrabold uppercase leading-[.88] tracking-tighter animate-[fadeup_.8s_ease_both] " + (cat.portrait ? "max-w-[10ch] text-[clamp(40px,5.6vw,96px)]" : "max-w-[16ch] text-[clamp(44px,8vw,128px)]")}>{short}</h1>
           {item.name !== short && <p className="mt-3 text-sm uppercase tracking-[.2em] text-white/70">{item.name.slice(short.length + 1).trim()}</p>}
           {item.tagline && <p className="mt-5 font-serif text-[clamp(22px,2.6vw,38px)] italic text-accent">“{item.tagline}”</p>}
           {!item.tagline && <p className="mt-5 max-w-[48ch] text-lg text-white/80">{item.description}</p>}
@@ -132,6 +152,7 @@ export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: Ext
       </section>
 
       <div className="bg-background">
+        {item.beats?.[0] && <Beat text={item.beats[0]} k={0} />}
         {/* 01 VISÃO GERAL */}
         <section id="visao" aria-labelledby="visao-t" className={sec}>
           <div className={wrap + gutter}>
@@ -148,12 +169,13 @@ export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: Ext
           </div>
         </section>
 
+        {item.beats?.[1] && <Beat text={item.beats[1]} k={1} />}
         {/* 02 DESTAQUES / PAPEL NA SAGA */}
         {(item.points?.length || item.saga) && (
           <section id="destaques" aria-labelledby="dest-t" className={sec}>
             <div className={wrap + gutter}>
               <p data-rv className={eyebrow}>02 / {item.points?.length ? "Destaques" : "Papel na saga"}</p>
-              <h2 data-rv id="dest-t" className={h + " mb-12"}>{item.points?.length ? "O que a proposta prevê" : "Um capítulo da história"}</h2>
+              <h2 data-rv id="dest-t" className={h + " mb-12"}>{item.points?.length ? "O que a proposta prevê" : item.sagaTitle ?? "Um capítulo da história"}</h2>
               {!!item.points?.length && (
                 <ol className="border-t border-line">
                   {item.points.map((p, k) => (
@@ -169,6 +191,7 @@ export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: Ext
           </section>
         )}
 
+        {item.beats?.[2] && <Beat text={item.beats[2]} k={2} />}
         {/* 03 GALERIA: painéis que se abrem e deslizam com o scroll */}
         {!!item.gallery?.length && (
           <section id="galeria" aria-labelledby="gal-t" className={sec}>
@@ -189,6 +212,7 @@ export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: Ext
           </section>
         )}
 
+        {item.beats?.[3] && <Beat text={item.beats[3]} k={3} />}
         {/* ESTADO REAL */}
         <section id="estado" aria-labelledby="est-t" className={sec}>
           <div className={wrap + gutter}>
@@ -206,6 +230,7 @@ export default function EntryPage({ cat, item }: { cat: ExtraCategory; item: Ext
         <section id="continue" aria-label="Continue explorando" className={sec + " pb-32"}>
           <div className={wrap + gutter}>
             <p data-rv className={eyebrow}>{pad(list.length - 1)} / Continue</p>
+            {item.sign && <p data-rv className="mb-12 max-w-[26ch] font-serif text-[clamp(24px,2.8vw,40px)] italic leading-tight text-accent">{item.sign}</p>}
             {next
               ? <a data-rv href={`#/${cat.slug}/${next.id}`} className="group block border-y border-line py-10">
                   <span className="text-[11px] uppercase tracking-[.2em] text-muted-foreground">Próximo em {cat.label}</span>
