@@ -155,6 +155,10 @@ Quase todo o conteúdo vive em três arquivos, sem tocar nos componentes:
 
 Vídeos, posters e a logo oficial ficam em `public/media/`.
 
+### Contando a história na página individual
+
+Cada projeto em `src/data/projects.ts` aceita `beats` (3 a 4 frases curtas) e `sign` (frase de assinatura). Os `beats` aparecem como pausas entre as seções (antes da visão geral, dos destaques, da galeria e do estado real), e as palavras acendem conforme a página rola. O `sign` fecha a página, antes do "Continue". Sem `beats`, a página fica como antes. Para itens só dos Extras, os mesmos campos existem em `extras.ts`.
+
 ### Adicionando itens aos Extras
 
 - **Jogo ou software novo:** adicione-o em `src/data/projects.ts` (lista `ROADMAP`). Ele aparece na home, na aba correspondente e ganha página própria, sozinho.
@@ -181,6 +185,7 @@ Vídeos, posters e a logo oficial ficam em `public/media/`.
 
 | Versão | Resumo |
 |--------|--------|
+| **v0.5.0** | História em falas curtas ao longo da página individual (jogos e softwares), 8 colecionáveis com imagens recortadas e layout em pé na aba Colecionáveis |
 | **v0.4.0** | Abas Extras (Jogos, Softwares, Colecionáveis) com página individual por item, túnel 3D da saga com luz por card, transição suave entre páginas e menu com as novas abas |
 | **v0.3.0** | Marquee, numeração de seções, wordmark final e otimização do hero |
 | **v0.2.0** | Projetos em capítulos, scroll suave com Lenis e hero com arte e spotlight |
