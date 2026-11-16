@@ -9,6 +9,7 @@ import { eyebrow, h2, pill, wrap } from "@/lib/ui"
 import { EXTRAS, findExtra } from "@/data/extras"
 import art from "@/assets/edenfall-full.jpg"
 import Timeline from "@/components/ui/timeline"
+import ContactForm from "@/components/contact-form"
 import { CONTACT, CONTACT_LABELS, contactHref, HERO_VIDEO, MEDIA, NAV, STAGES } from "@/data/site"
 
 const contacts = Object.entries(CONTACT).filter(([, v]) => v) as [keyof typeof CONTACT, string][]
@@ -37,7 +38,7 @@ function Header({ route }: { route: string }) {
     <header style={{ viewTransitionName: "site-header" }} className={"fixed inset-x-0 top-0 z-50 transition-colors " + (solid || open ? "border-b border-line bg-background/90 backdrop-blur-md" : "")}>
       <div className={wrap + " flex h-[72px] items-center justify-between gap-5"}>
         <a href="#inicio" aria-label="Kairós Interactive, início" className="flex items-center gap-3 font-head text-[15px] font-extrabold tracking-[.22em]"><img src={MEDIA.logo} alt="" className="h-8 w-auto animate-[flip_1.6s_.5s_cubic-bezier(.6,0,.2,1)_both]" />KAIRÓS</a>
-        <nav id="menu" aria-label="Principal" className={"max-lg:absolute max-lg:inset-x-0 max-lg:top-full max-lg:border-b max-lg:border-line max-lg:bg-background/95 " + (open ? "" : "max-lg:hidden")}>
+        <nav id="menu" aria-label="Principal" className={"max-lg:absolute max-lg:inset-x-0 max-lg:top-full max-lg:border-b max-lg:border-line max-lg:bg-background max-lg:shadow-[0_24px_48px_rgba(0,0,0,.6)] " + (open ? "" : "max-lg:hidden")}>
           <ul className="flex items-center gap-7 max-lg:flex-col max-lg:items-stretch max-lg:gap-0 max-lg:px-5 max-lg:pb-4 xl:gap-9">
             {NAV.slice(0, 3).map(([id, t]) => (<li key={id}><a href={"#" + id} onClick={() => setOpen(false)} className={tab}>{t}</a></li>))}
             {!!EXTRAS.length && <li aria-hidden className="mx-1 h-6 w-px bg-line max-lg:mx-0 max-lg:mt-4 max-lg:h-px max-lg:w-full" />}
@@ -76,10 +77,16 @@ function Home() {
 
         <section id="contato" aria-labelledby="contato-t" className="border-t border-line py-28">
           <div className={wrap}><p className={eyebrow}>04 / Contato</p><h2 id="contato-t" className={h2}>Fale com a Kairós</h2>
-            <div className="mt-10 grid max-w-[720px] gap-4 border border-line p-8">{contacts.length ? contacts.map(([k, v]) => (
-              <a key={k} href={contactHref(k, v)} rel="noopener" target={k === "email" ? undefined : "_blank"} className="w-max border-b-2 border-accent font-head text-[clamp(20px,2.6vw,32px)] font-extrabold uppercase">{CONTACT_LABELS[k]}</a>))
-              : <p className="text-muted-foreground">Os canais oficiais de contato ainda estão sendo definidos.</p>}
-              {CONTACT.email && <p className="text-sm text-muted-foreground">{CONTACT.email}</p>}</div></div>
+            <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:items-start">
+              <div className="grid gap-4 border border-line p-8">
+                <p className="text-[12px] uppercase tracking-[.14em] text-muted-foreground">Canais oficiais</p>
+                {contacts.length ? contacts.map(([k, v]) => (
+                <a key={k} href={contactHref(k, v)} rel="noopener" target={k === "email" ? undefined : "_blank"} className="w-max border-b-2 border-accent font-head text-[clamp(20px,2.6vw,32px)] font-extrabold uppercase">{CONTACT_LABELS[k]}</a>))
+                : <p className="text-muted-foreground">Os canais oficiais de contato ainda estão sendo definidos.</p>}
+                {CONTACT.email && <p className="text-sm text-muted-foreground">{CONTACT.email}</p>}
+              </div>
+              <ContactForm />
+            </div></div>
         </section>
         <div aria-hidden className="h-[19vw] select-none overflow-hidden">
           <p className="mt-[3.2vw] bg-cover bg-center bg-clip-text font-head text-[27vw] font-extrabold uppercase leading-[.85] tracking-tighter text-transparent [-webkit-text-fill-color:transparent]" style={{ backgroundImage: `url(${art})`, WebkitBackgroundClip: "text" }}>Kairós</p>
@@ -103,9 +110,11 @@ export default function App() {
   }, [route])
   return (
     <>
-      <a href="#main" className="absolute -left-[999px] z-[99] bg-accent px-4 py-2 text-black focus:left-2 focus:top-2">Ir para o conteúdo</a>
+      {/* Pula para o conteúdo sem mexer no hash: "#main" seria lido como rota vazia e levaria de volta à Home. */}
+      <a href="#main" onClick={(e) => { e.preventDefault(); const m = document.getElementById("main"); m?.focus(); if (m) jump(m.getBoundingClientRect().top + scrollY - 72) }}
+        className="absolute -left-[999px] z-[99] bg-accent px-4 py-2 text-black focus:left-2 focus:top-2">Ir para o conteúdo</a>
       <Header route={route} />
-      <main id="main">
+      <main id="main" tabIndex={-1} className="outline-none">
         {cat && item ? <EntryPage key={cat.slug + "/" + item.id} cat={cat} item={item} /> : cat ? <ExtraPage key={cat.slug} cat={cat} /> : <Home />}
       </main>
       <footer className="border-t border-line py-12 text-sm text-muted-foreground">
