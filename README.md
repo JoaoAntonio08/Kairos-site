@@ -61,7 +61,12 @@ Além da vitrine principal, o site tem abas secundárias no menu (depois do divi
 - **Página individual** (`/#/jogos/origin`, `/#/softwares/econ`...): topo com parallax em camadas, seções (visão geral, destaques ou papel na saga, galeria, estado real, próximo item), título fixo que muda por seção, régua de progresso com porcentagem e efeitos de entrada ligados ao scroll.
 - **Transição entre páginas:** ao trocar de página (por exemplo, de um jogo para o próximo), a tela antiga recua e a nova chega com um fade suave, já no topo. Usa a View Transitions API; em navegadores sem suporte, a troca é direta.
 - Os 5 jogos e os 2 softwares de `projects.ts` entram sozinhos nas abas, sem duplicar conteúdo.
+- **Busca, filtro e ordenação:** cada lista tem campo de busca (ignora acentos e maiúsculas), botões de estado com a quantidade de itens e seletor de ordem (original, A–Z, Z–A ou mais avançados primeiro). Estado e ordem ficam salvos por aba no navegador; sem resultados, aparece "Nada encontrado" com o botão Limpar filtros.
 - **Paleta:** preto e dourado (`#f2b544`) em todas as listas. Dentro de cada página individual vale a cor própria do projeto (definida em `ACCENT`, em `projects.ts`).
+
+### Formulário de contato
+
+A seção Contato tem um formulário (nome, e-mail, assunto e mensagem) com validação por campo: nome de 3 a 80 letras, e-mail em formato válido, assunto de uma lista e mensagem de 20 a 1000 caracteres. Os erros aparecem junto a cada campo e, ao enviar com erro, um resumo é anunciado e o foco vai para o primeiro campo inválido. Como o site não tem servidor, a mensagem validada abre no aplicativo de e-mail do visitante (`mailto:`). O rascunho fica salvo só no navegador e é apagado após o envio.
 
 ### Este site
 
@@ -96,7 +101,7 @@ O site foi pensado como uma experiência de scroll narrativo, com foco em atmosf
 | Interface | React 18 + TypeScript 5.6 |
 | Build | Vite 6 |
 | Estilo | Tailwind CSS v4, estrutura no padrão shadcn (`src/components/ui`, alias `@/`) |
-| Animação | GSAP + ScrollTrigger (páginas individuais), Motion (túnel 3D, glass-card), Lenis (scroll suave), Canvas 2D (partículas e cor dos cards), View Transitions API (troca de página) |
+| Animação | GSAP + ScrollTrigger (páginas individuais), Motion (túnel 3D), Lenis (scroll suave), Canvas 2D (partículas e cor dos cards), View Transitions API (troca de página) |
 | Tipografia | Archivo, Inter e Cormorant Garamond itálico |
 
 ## Rodando localmente
@@ -116,6 +121,7 @@ npm run dev
 | `npm run build` | Checagem de tipos + build de produção em `dist/` |
 | `npm run single` | Build em um único arquivo HTML, com tudo embutido |
 | `npm run preview` | Serve o build localmente |
+| `npm test` | Roda os testes da lógica de catálogo e validação (`tests/`, Node 22+) |
 
 ## Estrutura
 
@@ -126,12 +132,12 @@ src/
 │   ├── extra-page.tsx       # lista dos Extras (grade "lineup" + túnel)
 │   ├── entry-page.tsx       # página individual de cada item dos Extras
 │   ├── chapters.tsx         # seção de projetos em capítulos
+│   ├── contact-form.tsx     # formulário de contato com validação
 │   ├── backdrop.tsx         # fundo dinâmico dos capítulos
 │   └── ui/
 │       ├── liquid-sculpture-hero.tsx   # hero com partículas e spotlight
 │       ├── perspective-tunnel.tsx      # túnel 3D da saga: legenda por capítulo e luz por card (aba Jogos)
-│       ├── timeline.tsx                # "Como trabalhamos"
-│       └── glass-card.tsx
+│       └── timeline.tsx                # "Como trabalhamos"
 ├── data/
 │   ├── site.ts              # contatos, mídia, navegação, etapas da filosofia
 │   ├── projects.ts          # projetos, textos e status
@@ -139,8 +145,11 @@ src/
 ├── lib/
 │   ├── smooth.ts            # scroll suave (Lenis)
 │   ├── router.ts            # rotas por hash (#/jogos) + transição de página
+│   ├── catalog.ts           # busca, filtro por estado, ordenação e contagem
+│   ├── validation.ts        # regras do formulário de contato
 │   └── ui.ts                # classes compartilhadas
 └── assets/                  # imagens importadas pelo código
+tests/                       # testes automatizados (node:test)
 public/media/                # vídeos, posters e logo
 public/media/extras/         # imagens dos itens dos Extras
 ```
@@ -185,6 +194,7 @@ Cada projeto em `src/data/projects.ts` aceita `beats` (3 a 4 frases curtas) e `s
 
 | Versão | Resumo |
 |--------|--------|
+| **v0.6.0** | Busca, filtro por estado e ordenação nas abas Extras; formulário de contato com validação; testes automatizados; correção do link "Ir para o conteúdo"; remoção de componentes sem uso |
 | **v0.5.0** | História em falas curtas ao longo da página individual (jogos e softwares), 8 colecionáveis com imagens recortadas e layout em pé na aba Colecionáveis |
 | **v0.4.0** | Abas Extras (Jogos, Softwares, Colecionáveis) com página individual por item, túnel 3D da saga com luz por card, transição suave entre páginas e menu com as novas abas |
 | **v0.3.0** | Marquee, numeração de seções, wordmark final e otimização do hero |
