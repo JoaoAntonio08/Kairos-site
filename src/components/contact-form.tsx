@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react"
 import { CONTACT } from "@/data/site"
 import { pill } from "@/lib/ui"
+import Select from "@/components/ui/select"
 import { EMPTY, FIELDS, LIMITS, mailtoLink, SUBJECTS, validate, validateField, type ContactForm as Form, type Errors, type Field } from "@/lib/validation"
 
 // Formulário de contato (PB-15). O site não tem servidor: ao enviar, os dados validados abrem o aplicativo de
@@ -24,7 +25,7 @@ export default function ContactForm() {
   const [errors, setErrors] = useState<Errors>({})
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({})
   const [sent, setSent] = useState(false), [summary, setSummary] = useState("")
-  const refs = useRef<Partial<Record<Field, HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null>>>({})
+  const refs = useRef<Partial<Record<Field, HTMLElement | null>>>({})
 
   // Salva o rascunho a cada alteração (menos o campo-armadilha).
   useEffect(() => {
@@ -36,11 +37,12 @@ export default function ContactForm() {
 
   const check = (field: Field, next: Form) => setErrors((e) => ({ ...e, [field]: validateField(field, next) || undefined }))
 
-  const change = (field: keyof Form) => (ev: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const next = { ...form, [field]: ev.target.value }
+  const set = (field: keyof Form, value: string) => {
+    const next = { ...form, [field]: value }
     setForm(next); setSent(false)
     if (field !== "website" && (touched[field] || errors[field])) check(field, next) // corrige o erro enquanto digita
   }
+  const change = (field: keyof Form) => (ev: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => set(field, ev.target.value)
   const blur = (field: Field) => () => { setTouched((t) => ({ ...t, [field]: true })); check(field, form) }
 
   const submit = (ev: FormEvent) => {
@@ -60,7 +62,7 @@ export default function ContactForm() {
   }
 
   const err = (f: Field) => (touched[f] ? errors[f] : undefined)
-  const a11y = (f: Field) => ({ id: "cf-" + f, name: f, "aria-invalid": !!err(f), "aria-describedby": `cf-${f}-msg`, ref: (el: HTMLInputElement & HTMLSelectElement & HTMLTextAreaElement) => { refs.current[f] = el } })
+  const a11y = (f: Field) => ({ id: "cf-" + f, name: f, "aria-invalid": !!err(f), "aria-describedby": `cf-${f}-msg`, ref: (el: HTMLInputElement & HTMLTextAreaElement) => { refs.current[f] = el } })
   const Msg = ({ f, hint }: { f: Field; hint?: string }) => (
     <p id={`cf-${f}-msg`} className={"mt-1.5 min-h-[18px] text-[12.5px] " + (err(f) ? "text-[#fb7185]" : "text-muted-foreground")}>{err(f) ?? hint ?? ""}</p>
   )
@@ -89,10 +91,10 @@ export default function ContactForm() {
 
       <div>
         <label htmlFor="cf-subject" className="mb-1.5 block text-[12px] uppercase tracking-[.14em] text-muted-foreground">Assunto *</label>
-        <select {...a11y("subject")} value={form.subject} onChange={change("subject")} onBlur={blur("subject")} className={input + " h-12" + border(!!err("subject"))}>
-          <option value="">Selecione…</option>
-          {SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+        <Select id="cf-subject" value={form.subject} onChange={(v) => set("subject", v)} onBlur={blur("subject")}
+          options={[{ value: "", label: "Selecione um assunto…" }, ...SUBJECTS.map((s) => ({ value: s, label: s }))]}
+          invalid={!!err("subject")} describedBy="cf-subject-msg" buttonRef={(el) => { refs.current.subject = el }}
+          className={input + " h-12" + border(!!err("subject"))} />
         <Msg f="subject" />
       </div>
 

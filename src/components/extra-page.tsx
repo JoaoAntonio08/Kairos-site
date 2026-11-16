@@ -4,6 +4,7 @@ import { EXTRAS, type ExtraCategory, type ExtraItem } from "@/data/extras"
 import { STATUS } from "@/data/projects"
 import { CONTACT, MEDIA } from "@/data/site"
 import { eyebrow, h2, pill, wrap } from "@/lib/ui"
+import Select from "@/components/ui/select"
 import { applyCatalog, asSort, asStatus, cleanQuery, countByStatus, MAX_QUERY, resultLabel, SORT_LABELS, type SortMode, type StatusFilter } from "@/lib/catalog"
 
 // Classes completas (o Tailwind só gera o que enxerga escrito): colunas conforme a quantidade de itens.
@@ -115,10 +116,11 @@ function Toolbar({ c, cat }: { c: ReturnType<typeof useCatalog>; cat: ExtraCateg
         })}
       </fieldset>
       <div className="flex items-center gap-3">
-        <label htmlFor="ordem" className="text-[11px] uppercase tracking-[.16em] text-muted-foreground">Ordenar</label>
-        <select id="ordem" value={c.sort} onChange={(e) => c.setSort(asSort(e.target.value))} className={field + " pr-8"}>
-          {(Object.keys(SORT_LABELS) as SortMode[]).map((k) => <option key={k} value={k}>{k === "saga" && cat.numerals === "roman" ? "Ordem da saga" : SORT_LABELS[k]}</option>)}
-        </select>
+        <label htmlFor="ordem" className="shrink-0 text-[11px] uppercase tracking-[.16em] text-muted-foreground">Ordenar</label>
+        <div className="min-w-[230px]">
+          <Select id="ordem" value={c.sort} onChange={c.setSort} align="right" className={field + " pr-4"}
+            options={(Object.keys(SORT_LABELS) as SortMode[]).map((k) => ({ value: k, label: k === "saga" && cat.numerals === "roman" ? "Ordem da saga" : SORT_LABELS[k] }))} />
+        </div>
       </div>
     </form>
   )
